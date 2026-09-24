@@ -1,96 +1,80 @@
 //seller sales information
 import { useEffect, useState } from "react";
-import { auth } from "../../firebase/firebaseConfig";
 import api from "../../services/api";
 
 function SellerSales() {
-  const [sales, setSales] = useState({
-    orders: 0,
-    quantity: 0,
-    revenue: 0
-  });
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const getSales = async () => {
+    const getOrders = async () => {
       try {
+        const sellerId = localStorage.getItem("sellerId");
+
         const res = await api.get(
-          `/orders/seller/${auth.currentUser.uid}`
+          `/orders/seller/${sellerId}`
         );
 
-        let quantity = 0;
-        let revenue = 0;
-
-        res.data.forEach((order) => {
-          order.items.forEach((item) => {
-            quantity += item.quantity;
-            revenue += item.price * item.quantity;
-          });
-        });
-
-        setSales({
-          orders: res.data.length,
-          quantity,
-          revenue
-        });
+        setOrders(res.data);
       } catch (error) {
-        console.log(error.message);
+        console.error(error);
       }
     };
 
-    getSales();
+    getOrders();
   }, []);
 
+  const revenue = orders.reduce(
+    (sum, order) => sum + Number(order.totalAmount || 0),
+    0
+  );
+
+  const productsSold = orders.reduce(
+    (sum, order) =>
+      sum +
+      (order.items || []).reduce(
+        (itemSum, item) =>
+          itemSum + Number(item.quantity || 0),
+        0
+      ),
+    0
+  );
+
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10 md:px-8">
+    <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <section className="mx-auto max-w-6xl">
+        <h1 className="text-3xl font-bold">
+          Sales
+        </h1>
 
-      <section className="mx-auto max-w-7xl">
+        <div className="mt-8 grid gap-5 sm:grid-cols-3">
+          <div className="rounded-xl bg-white p-6">
+            <p className="text-sm text-gray-500">
+              Total Revenue
+            </p>
+            <p className="mt-2 text-2xl font-bold">
+              ₹{revenue}
+            </p>
+          </div>
 
-        <div className="mb-8">
-          <p className="text-sm text-purple-600">
-            Seller
-          </p>
-
-          <h1 className="mt-1 text-3xl font-bold">
-            Sales Overview
-          </h1>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-3">
-
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-xl bg-white p-6">
             <p className="text-sm text-gray-500">
               Total Orders
             </p>
-
-            <p className="mt-2 text-3xl font-bold">
-              {sales.orders}
+            <p className="mt-2 text-2xl font-bold">
+              {orders.length}
             </p>
           </div>
 
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+          <div className="rounded-xl bg-white p-6">
             <p className="text-sm text-gray-500">
               Products Sold
             </p>
-
-            <p className="mt-2 text-3xl font-bold">
-              {sales.quantity}
+            <p className="mt-2 text-2xl font-bold">
+              {productsSold}
             </p>
           </div>
-
-          <div className="rounded-2xl border bg-white p-6 shadow-sm">
-            <p className="text-sm text-gray-500">
-              Total Sales
-            </p>
-
-            <p className="mt-2 text-3xl font-bold text-purple-600">
-              ₹{sales.revenue}
-            </p>
-          </div>
-
         </div>
-
       </section>
-
     </main>
   );
 }

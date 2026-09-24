@@ -1,51 +1,43 @@
 //seller overview
+import { Link } from "react-router-dom";
+
 function SellerDashboard() {
-  const stats = [
-    { title: "Total Products", value: "48" },
-    { title: "Total Orders", value: "126" },
-    { title: "Total Sales", value: "₹2,85,000" },
-    { title: "Pending Orders", value: "12" }
+  const cards = [
+    ["Products", "/seller/products"],
+    ["Orders", "/seller/orders"],
+    ["Sales", "/seller/sales"],
+    ["Reviews", "/seller/reviews"]
   ];
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div>
-          <p className="text-purple-600 font-medium">Seller Panel</p>
-          <h1 className="text-3xl font-bold text-black mt-1">
-            Seller Dashboard
-          </h1>
-          <p className="text-gray-500 mt-2">
-            Manage your products, orders and sales.
-          </p>
-        </div>
+    <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <section className="mx-auto max-w-6xl">
+        <h1 className="text-3xl font-bold">
+          Seller Dashboard
+        </h1>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-          {stats.map((item) => (
-            <article
-              key={item.title}
-              className="bg-white border border-gray-200 rounded-xl p-6"
+        <p className="mt-2 text-gray-500">
+          Manage your MarketHub store.
+        </p>
+
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {cards.map(([title, path]) => (
+            <Link
+              key={path}
+              to={path}
+              className="rounded-2xl bg-white p-6 shadow-sm hover:shadow-md"
             >
-              <p className="text-sm text-gray-500">{item.title}</p>
-              <h2 className="text-2xl font-bold text-black mt-2">
-                {item.value}
+              <h2 className="text-xl font-semibold">
+                {title}
               </h2>
-            </article>
+
+              <p className="mt-2 text-sm text-gray-500">
+                Manage {title.toLowerCase()}
+              </p>
+            </Link>
           ))}
-        </section>
-
-        <section className="bg-white border border-gray-200 rounded-xl p-6 mt-8">
-          <h2 className="text-xl font-bold text-black">
-            Sales Overview
-          </h2>
-
-          <div className="mt-6 h-48 border border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-            <p className="text-gray-400">
-              Sales chart will be added later
-            </p>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

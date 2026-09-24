@@ -12,41 +12,19 @@
 // }
 // export default ProductCard
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchOrders } from "../../redux/slices/orderSlice";
 
 function ProductCard({ product }) {
-  const dispatch = useDispatch();
-  const { products: wishlistProducts } = useSelector(
-    (state) => state.wishlist
-  );
-
-  const liked = wishlistProducts?.some(
-    (item) => item._id === product._id
-  );
-
   return (
     <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-
       <div className="relative h-56 overflow-hidden bg-gray-100">
-
         <img
           src={product.image}
           alt={product.name}
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
-
-        <button
-          onClick={() => dispatch(fetchOrders(product))}
-          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl shadow"
-        >
-          {liked ? "♥" : "♡"}
-        </button>
-
       </div>
 
       <div className="p-5">
-
         <p className="text-xs font-medium uppercase text-purple-600">
           {product.category}
         </p>
@@ -60,7 +38,6 @@ function ProductCard({ product }) {
         </p>
 
         <div className="mt-4 flex items-center justify-between">
-
           <p className="text-xl font-bold">
             ₹{product.price}
           </p>
@@ -71,9 +48,7 @@ function ProductCard({ product }) {
           >
             View
           </Link>
-
         </div>
-
       </div>
     </article>
   );
