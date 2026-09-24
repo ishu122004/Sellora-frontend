@@ -1,0 +1,1 @@
+//stores seller related state

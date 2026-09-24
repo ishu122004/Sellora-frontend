@@ -1,0 +1,1 @@
+//display one wishlist product

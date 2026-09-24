@@ -1,0 +1,14 @@
+//central redux store .store frontend application state
+
+import { configureStore } from "@reduxjs/toolkit";
+import productReducer from './slices/productSlice'
+import orderReducer from './slices/orderSlice'
+import wishlistReducer from "./slices/wishlistSlice";
+const store=configureStore({
+    reducer:{
+        product:productReducer,
+        order:orderReducer,
+        wishlist:wishlistReducer
+    }
+})
+export default store

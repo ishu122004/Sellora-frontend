@@ -1,0 +1,1 @@
+//details of one seller
