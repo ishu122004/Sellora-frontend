@@ -5,19 +5,30 @@
 // categories
 // order statuses
 // user roles
-export const categories = [
-  "Electronics",
-  "Fashion",
-  "Home",
-  "Beauty",
-  "Sports",
-  "Books",
-];
-
-export const orderStatuses = [
+export const ORDER_STATUS = [
   "Pending",
-  "Confirmed",
+  "Processing",
   "Shipped",
   "Delivered",
-  "Cancelled",
+  "Cancelled"
+];
+
+export const USER_ROLES = {
+  CUSTOMER: "customer",
+  SELLER: "seller",
+  ADMIN: "admin"
+};
+
+export const PRODUCT_CATEGORIES = [
+  "Electronics",
+  "Fashion",
+  "Beauty",
+  "Home",
+  "Books",
+  "Sports & Fitness"
+];
+
+export const PAYMENT_METHODS = [
+  "Cash on Delivery",
+  "Online Payment"
 ];

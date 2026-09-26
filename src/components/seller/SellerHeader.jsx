@@ -20,7 +20,7 @@ function SellerHeader({ user }) {
 
         <div>
           <h1 className="text-xl font-bold text-gray-900">
-            MarketHub
+            Sellora
           </h1>
           <p className="text-xs text-purple-600 font-medium">
             Seller Panel
@@ -115,7 +115,7 @@ function SellerHeader({ user }) {
               <div>
                 <h2 className="font-bold text-lg">Seller Menu</h2>
                 <p className="text-xs text-purple-600">
-                  MarketHub
+                  Sellora
                 </p>
               </div>
 

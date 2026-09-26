@@ -1,73 +1,77 @@
 //customer previous order
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { onAuthStateChanged } from "firebase/auth";
+
+import { fetchOrders } from "../../redux/slices/orderSlice";
+import OrderCard from "../../components/order/OrderCard";
+import { auth } from "../../firebase/firebaseConfig";
 
 function Orders() {
-  const [orders, setOrders] = useState([]);
+  const dispatch = useDispatch();
+
+  const {
+    orders = [],
+    loading,
+    error
+  } = useSelector((state) => state.order);
 
   useEffect(() => {
-    setOrders(
-      JSON.parse(localStorage.getItem("orders") || "[]")
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (user) {
+          dispatch(fetchOrders());
+        }
+      }
     );
-  }, []);
+
+    return () => unsubscribe();
+  }, [dispatch]);
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
-      <section className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold">My Orders</h1>
+    <main className="min-h-screen bg-gray-50 px-6 py-12">
+      <div className="mx-auto max-w-5xl">
+        <h1 className="text-3xl font-bold text-gray-900">
+          My Orders
+        </h1>
+
+        {loading && (
+          <p className="mt-6 text-gray-600">
+            Loading orders...
+          </p>
+        )}
+
+        {error && (
+          <p className="mt-6 text-red-600">
+            {error}
+          </p>
+        )}
+
+        {!loading &&
+          !error &&
+          !orders.length && (
+            <div className="mt-8 rounded-2xl bg-white p-8 text-center">
+              <h2 className="text-xl font-semibold">
+                No orders yet
+              </h2>
+
+              <p className="mt-2 text-gray-500">
+                Your completed purchases will
+                appear here.
+              </p>
+            </div>
+          )}
 
         <div className="mt-8 space-y-4">
-          {orders.length === 0 ? (
-            <div className="rounded-xl bg-white p-8 text-center">
-              <p className="text-gray-500">No orders yet.</p>
-
-              <Link
-                to="/products"
-                className="mt-5 inline-block rounded-lg bg-black px-5 py-3 text-white"
-              >
-                Shop Now
-              </Link>
-            </div>
-          ) : (
-            orders.map((order) => (
-              <article
-                key={order.id}
-                className="rounded-xl bg-white p-5 shadow-sm"
-              >
-                <div className="flex flex-wrap justify-between gap-3">
-                  <div>
-                    <p className="font-semibold">
-                      Order #{order.id}
-                    </p>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <p className="font-semibold">
-                    ₹{order.totalAmount}
-                  </p>
-                </div>
-
-                <p className="mt-3 text-sm">
-                  Status:{" "}
-                  <span className="font-medium">
-                    {order.status}
-                  </span>
-                </p>
-
-                <Link
-                  to={`/orders/${order.id}`}
-                  className="mt-4 inline-block text-sm font-medium text-purple-600"
-                >
-                  View Order
-                </Link>
-              </article>
-            ))
-          )}
+          {orders.map((order) => (
+            <OrderCard
+              key={order._id}
+              order={order}
+            />
+          ))}
         </div>
-      </section>
+      </div>
     </main>
   );
 }

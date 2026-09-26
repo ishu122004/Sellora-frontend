@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../../services/api";
+import SafeImage from "../../components/common/SafeImage";
+import formatPrice from "../../utils/formatPrice";
 
 function CategoryProducts() {
   const { category } = useParams();
@@ -57,8 +59,8 @@ function CategoryProducts() {
                 key={product._id}
                 className="overflow-hidden rounded-xl bg-white shadow-sm"
               >
-                <img
-                  src={product.image}
+                <SafeImage
+                  src={product.images?.[0] || product.image}
                   alt={product.name}
                   className="h-48 w-full object-cover"
                 />
@@ -73,7 +75,7 @@ function CategoryProducts() {
                   </h2>
 
                   <p className="mt-2 font-bold">
-                    ₹{product.price}
+                    {formatPrice(product.price)}
                   </p>
 
                   <Link

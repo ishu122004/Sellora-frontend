@@ -45,47 +45,43 @@
 // orders/fetchOrders/fulfilled
 //         ↓
 // orders/fetchOrders/rejected
+import {
+  createAsyncThunk,
+  createSlice
+} from "@reduxjs/toolkit";
 
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../services/api";
 
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
-  async function () {
-    const res = await api.get("/orders");
-    return res.data;
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/orders");
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.message
+      );
+    }
   }
 );
 
 export const fetchOrder = createAsyncThunk(
   "orders/fetchOrder",
-  async function (id) {
-    const res = await api.get(`/orders/${id}`);
-    return res.data;
-  }
-);
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await api.get(
+        `/orders/${id}`
+      );
 
-export const createOrder = createAsyncThunk(
-  "orders/createOrder",
-  async function (order) {
-    const res = await api.post("/orders", order);
-    return res.data;
-  }
-);
-
-export const updateOrderStatus = createAsyncThunk(
-  "orders/updateOrderStatus",
-  async function ({ id, status }) {
-    const res = await api.put(`/orders/${id}`, { status });
-    return res.data;
-  }
-);
-
-export const fetchSellerOrders = createAsyncThunk(
-  "orders/fetchSellerOrders",
-  async function (uid) {
-    const res = await api.get(`/orders/seller/${uid}`);
-    return res.data;
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.message
+      );
+    }
   }
 );
 
@@ -99,81 +95,68 @@ const initialState = {
 const orderSlice = createSlice({
   name: "order",
   initialState,
+
   reducers: {
     clearSelectedOrder: (state) => {
       state.selectedOrder = null;
+    },
+
+    clearOrders: (state) => {
+      state.orders = [];
+      state.error = null;
     }
   },
+
   extraReducers: (build) => {
     build
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchOrders.fulfilled, (state, action) => {
-        state.loading = false;
-        state.orders = action.payload;
-      })
-      .addCase(fetchOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
+
+      .addCase(
+        fetchOrders.fulfilled,
+        (state, action) => {
+          state.loading = false;
+          state.orders = action.payload;
+        }
+      )
+
+      .addCase(
+        fetchOrders.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      )
 
       .addCase(fetchOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(fetchOrder.fulfilled, (state, action) => {
-        state.loading = false;
-        state.selectedOrder = action.payload;
-      })
-      .addCase(fetchOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+        state.selectedOrder = null;
       })
 
-      .addCase(createOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createOrder.fulfilled, (state, action) => {
-        state.loading = false;
-        state.orders.unshift(action.payload);
-      })
-      .addCase(createOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-
-      .addCase(updateOrderStatus.fulfilled, (state, action) => {
-        const index = state.orders.findIndex(
-          (order) => order._id === action.payload._id
-        );
-
-        if (index !== -1) {
-          state.orders[index] = action.payload;
-        }
-
-        if (state.selectedOrder?._id === action.payload._id) {
+      .addCase(
+        fetchOrder.fulfilled,
+        (state, action) => {
+          state.loading = false;
           state.selectedOrder = action.payload;
         }
-      })
+      )
 
-      .addCase(fetchSellerOrders.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchSellerOrders.fulfilled, (state, action) => {
-        state.loading = false;
-        state.orders = action.payload;
-      })
-      .addCase(fetchSellerOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      });
+      .addCase(
+        fetchOrder.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   }
 });
 
-export const { clearSelectedOrder } = orderSlice.actions;
+export const {
+  clearSelectedOrder,
+  clearOrders
+} = orderSlice.actions;
 
 export default orderSlice.reducer;

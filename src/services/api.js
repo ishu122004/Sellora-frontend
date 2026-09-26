@@ -6,13 +6,45 @@
 // Express API
 //  ↓
 // MongoDB
+// import axios from "axios";
+// import { auth } from "../firebase/firebaseConfig";
+
+// const api = axios.create({
+//   baseURL: "http://localhost:3000/api"
+// });
+
+// api.interceptors.request.use(async (config) => {
+//   const user = auth.currentUser;
+
+//   if (user) {
+//     const token = await user.getIdToken();
+
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+
+//   return config;
+// });
+
+// export default api;
 import axios from "axios";
+import { auth } from "../firebase/firebaseConfig";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
   headers: {
-    "Content-Type": "application/json",
-  },
+    "Content-Type": "application/json"
+  }
+});
+
+api.interceptors.request.use(async (config) => {
+  const user = auth.currentUser;
+
+  if (user) {
+    const token = await user.getIdToken();
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });
 
 export default api;

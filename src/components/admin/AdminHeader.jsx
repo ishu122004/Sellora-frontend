@@ -20,7 +20,9 @@ function AdminHeader({ user }) {
     ["/admin/products", "Products"],
     ["/admin/orders", "Orders"],
     ["/admin/sellers", "Sellers"],
-    ["/admin/reviews", "Reviews"]
+    ["/admin/reviews", "Reviews"],
+    ["/admin/categories", "Categories"],
+    ["/admin/profile", "Profile"]
   ];
 
   return (
@@ -28,7 +30,8 @@ function AdminHeader({ user }) {
       <header className="h-16 border-b border-gray-200 bg-white flex items-center justify-between px-4 md:px-6">
 
         <div>
-          <h1 className="text-xl font-bold text-gray-900">MarketHub</h1>
+          <h1 className="text-xl font-bold text-gray-900">Sellora</h1>
+
           <p className="text-xs text-purple-600 font-medium">Admin Panel</p>
         </div>
 

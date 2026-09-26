@@ -1,9 +1,12 @@
-import { signOut } from "firebase/auth";
+//a page is a complete screen/route
+//component =reusable part.page=complete screen
+//home main homepagimport { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
+import { signOut } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
-function Header({ user, role }) {
+function Header({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -15,79 +18,38 @@ function Header({ user, role }) {
     }
   };
 
-  const customerLinks = [
+  const links = [
     ["/", "Home"],
     ["/products", "Products"],
+    ["/orders", "My Orders"],
     ["/wishlist", "Wishlist"],
     ["/cart", "Cart"],
-    ["/orders", "My Orders"],
-    ["/profile", "Profile"],
-    ["/become-seller", "Sell"]
+    ["/profile", "Profile"]
   ];
-
-  const sellerLinks = [
-    ["/", "Home"],
-    ["/seller", "Dashboard"],
-    ["/seller/products", "My Products"],
-    ["/seller/products/add", "Add Product"],
-    ["/seller/orders", "Orders"],
-    ["/seller/sales", "Sales"],
-    ["/seller/profile", "Profile"]
-  ];
-
-  const adminLinks = [
-    ["/", "Home"],
-    ["/admin", "Dashboard"],
-    ["/admin/products", "Products"],
-    ["/admin/orders", "Orders"],
-    ["/admin/users", "Users"],
-    ["/admin/categories", "Categories"],
-    ["/admin/profile", "Profile"]
-  ];
-
-  const links =
-    role === "seller"
-      ? sellerLinks
-      : role === "admin"
-        ? adminLinks
-        : customerLinks;
-
-  const panelName =
-    role === "seller"
-      ? "Seller Panel"
-      : role === "admin"
-        ? "Admin Panel"
-        : "";
 
   return (
     <>
       <header className="sticky top-0 z-40 h-16 border-b border-gray-200 bg-white">
         <div className="flex h-full items-center justify-between px-4 md:px-6">
-          
-          <Link to="/" className="text-xl font-bold text-gray-900">
-          Sellora
+          <Link
+            to="/"
+            className="text-xl font-bold text-gray-900"
+          >
+           Sellora
           </Link>
 
-          {panelName && (
-            <span className="hidden text-sm font-medium text-purple-600 lg:block">
-              {panelName}
-            </span>
-          )}
-
-          <nav className="hidden md:block">
-            <ul className="flex items-center gap-5 text-sm">
-              {links.map(([path, name]) => (
-                <li key={path}>
-                  <Link
-                    to={path}
-                    className="hover:text-purple-600"
-                  >
-                    {name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <ul className="hidden items-center gap-5 text-sm md:flex">
+            {links.map(([path, name]) => (
+              <li key={path}>
+                <Link
+                  to={path}
+                  className="hover:text-purple-600"
+                >
+                  {name}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
           <div className="flex items-center gap-3">
             <span className="hidden text-sm text-gray-600 lg:block">
@@ -129,15 +91,7 @@ function Header({ user, role }) {
 
           <aside className="absolute right-0 top-0 h-full w-72 bg-white p-6 shadow-xl">
             <div className="mb-8 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold">MarketHub</h2>
-
-                {panelName && (
-                  <p className="text-xs font-medium text-purple-600">
-                    {panelName}
-                  </p>
-                )}
-              </div>
+              <h2 className="text-lg font-bold">Menu</h2>
 
               <button
                 onClick={() => setMenuOpen(false)}
@@ -147,26 +101,24 @@ function Header({ user, role }) {
               </button>
             </div>
 
-            <nav>
-              <ul className="space-y-2">
-                {links.map(([path, name]) => (
-                  <li key={path}>
-                    <Link
-                      to={path}
-                      onClick={() => setMenuOpen(false)}
-                      className="block rounded-lg px-4 py-3 hover:bg-purple-50"
-                    >
-                      {name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <ul className="space-y-2">
+              {links.map(([path, name]) => (
+                <li key={path}>
+                  <Link
+                    to={path}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-lg px-4 py-3 hover:bg-purple-50"
+                  >
+                    {name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
             <div className="mt-8 border-t pt-5">
               {user ? (
                 <>
-                  <p className="mb-3 break-all text-sm text-gray-500">
+                  <p className="mb-3 text-sm text-gray-500">
                     {user.email}
                   </p>
 

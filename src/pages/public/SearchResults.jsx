@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../../services/api";
+import SafeImage from "../../components/common/SafeImage";
+import formatPrice from "../../utils/formatPrice";
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
@@ -51,8 +53,8 @@ function SearchResults() {
                 key={product._id}
                 className="rounded-xl bg-white p-4 shadow-sm"
               >
-                <img
-                  src={product.image}
+                <SafeImage
+                  src={product.images?.[0] || product.image}
                   alt={product.name}
                   className="h-48 w-full rounded-lg object-cover"
                 />
@@ -62,7 +64,7 @@ function SearchResults() {
                 </h2>
 
                 <p className="mt-2 font-bold">
-                  ₹{product.price}
+                  {formatPrice(product.price)}
                 </p>
 
                 <Link

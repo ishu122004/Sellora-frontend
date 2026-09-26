@@ -1,87 +1,95 @@
 //show complete information about one order
-import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+
+import {
+  fetchOrder
+} from "../../redux/slices/orderSlice";
+
+import OrderItem from "../../components/order/OrderItem";
+import OrderStatus from "../../components/order/OrderStatus";
 
 function OrderDetails() {
   const { id } = useParams();
-  const [order, setOrder] = useState(null);
+  const dispatch = useDispatch();
+
+  const {
+    selectedOrder,
+    loading,
+    error
+  } = useSelector((state) => state.order);
 
   useEffect(() => {
-    const orders = JSON.parse(
-      localStorage.getItem("orders") || "[]"
-    );
+    dispatch(fetchOrder(id));
+  }, [dispatch, id]);
 
-    const found = orders.find(
-      (item) => String(item.id) === String(id)
-    );
-
-    setOrder(found);
-  }, [id]);
-
-  if (!order) {
+  if (loading || !selectedOrder) {
     return (
-      <main className="min-h-screen bg-gray-50 p-10">
-        <p>Order not found.</p>
+      <main className="min-h-screen p-6">
+        <p>Loading order...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen p-6">
+        <p className="text-red-600">
+          {error}
+        </p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
-      <section className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold">
-          Order Details
-        </h1>
+    <main className="min-h-screen bg-gray-50 p-6">
+      <div className="mx-auto max-w-4xl rounded-xl bg-white p-6">
+        <div className="flex justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">
+              Order Details
+            </h1>
 
-        <div className="mt-6 rounded-xl bg-white p-6">
-          <p>
-            <strong>Order ID:</strong> {order.id}
-          </p>
-
-          <p className="mt-2">
-            <strong>Status:</strong> {order.status}
-          </p>
-
-          <p className="mt-2">
-            <strong>Payment:</strong> {order.payment}
-          </p>
-
-          <p className="mt-2">
-            <strong>Address:</strong> {order.address}
-          </p>
-
-          <div className="mt-6 space-y-4 border-t pt-5">
-            {order.items.map((item) => (
-              <div
-                key={item._id}
-                className="flex items-center justify-between"
-              >
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-gray-500">
-                    Quantity: {item.quantity}
-                  </p>
-                </div>
-
-                <p className="font-semibold">
-                  ₹{item.price * item.quantity}
-                </p>
-              </div>
-            ))}
+            <p className="mt-2 text-sm text-gray-500">
+              Order ID: {selectedOrder._id}
+            </p>
           </div>
 
-          <p className="mt-6 border-t pt-5 text-xl font-bold">
-            Total: ₹{order.totalAmount}
+          <OrderStatus
+            status={selectedOrder.status}
+          />
+        </div>
+
+        <div className="mt-6">
+          {selectedOrder.items?.map(
+            (item, index) => (
+              <OrderItem
+                key={
+                  item.productId || index
+                }
+                item={item}
+              />
+            )
+          )}
+        </div>
+
+        <div className="mt-6 border-t pt-5">
+          <p className="text-xl font-bold">
+            Total: ₹{selectedOrder.totalAmount}
           </p>
 
-          <Link
-            to="/orders"
-            className="mt-5 inline-block rounded-lg bg-black px-5 py-3 text-white"
-          >
-            Back to Orders
-          </Link>
+          <p className="mt-2 text-sm text-gray-500">
+            Payment:{" "}
+            {selectedOrder.paymentStatus}
+          </p>
+
+          <p className="mt-2 text-sm text-gray-500">
+            Delivery Address:{" "}
+            {selectedOrder.address}
+          </p>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

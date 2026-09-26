@@ -1,23 +1,27 @@
 //allow customers to filter products
-function ProductFilter({ products, category, setCategory }) {
-  const categories = [
-    ...new Set(products.map((product) => product.category))
-  ];
-
+function ProductFilter({
+  categories = [],
+  category,
+  setCategory
+}) {
   return (
-    <select
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-      className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:border-purple-600"
-    >
-      <option value="">All Categories</option>
+    <div>
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
+        Category
+      </label>
 
-      {categories.map((item) => (
-        <option key={item} value={item}>
-          {item}
-        </option>
-      ))}
-    </select>
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-purple-500"
+      >
+        {categories.map((item) => (
+          <option key={item} value={item}>
+            {item === "All" ? "All Categories" : item}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 

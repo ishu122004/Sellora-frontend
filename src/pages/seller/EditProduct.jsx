@@ -1,100 +1,90 @@
-//seller updates an existing product
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import ProductForm from "../../components/seller/ProductForm";
 import api from "../../services/api";
 
-function EditProduct() {
+function EditProduct({ admin = false }) {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [form, setForm] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [pageError, setPageError] = useState("");
 
   useEffect(() => {
-    const getProduct = async () => {
-      try {
-        const res = await api.get(`/products/${id}`);
-        setForm(res.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getProduct();
+    api.get(`/products/${id}`)
+      .then((response) => setProduct(response.data))
+      .catch((error) => {
+        setPageError(
+          error.response?.data?.message ||
+          "Failed to load product"
+        );
+      });
   }, [id]);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (updates) => {
     try {
-      await api.put(`/products/${id}`, {
-        ...form,
-        price: Number(form.price),
-        stock: Number(form.stock)
-      });
-
-      alert("Product updated");
-      navigate("/seller/products");
-    } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        "Update failed"
+      setLoading(true);
+      setPageError("");
+      await api.put(`/products/${id}`, updates);
+      navigate(
+        admin
+          ? "/admin/products"
+          : "/seller/products"
       );
+    } catch (error) {
+      setPageError(
+        error.response?.data?.message ||
+        "Failed to update product"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!form) {
-    return <main className="p-10">Loading...</main>;
-  }
+  const returnPath = admin
+    ? "/admin/products"
+    : "/seller/products";
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
-      <section className="mx-auto max-w-3xl rounded-xl bg-white p-6">
-        <h1 className="text-2xl font-bold">Edit Product</h1>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 space-y-4"
+    <main className="min-h-screen bg-slate-50 px-4 py-10">
+      <section className="mx-auto max-w-3xl">
+        <Link
+          to={returnPath}
+          className="text-sm font-medium text-purple-600"
         >
-          {[
-            ["name", "Product name"],
-            ["category", "Category"],
-            ["price", "Price"],
-            ["stock", "Stock"],
-            ["image", "Image URL"]
-          ].map(([name, placeholder]) => (
-            <input
-              key={name}
-              name={name}
-              type={
-                name === "price" || name === "stock"
-                  ? "number"
-                  : "text"
-              }
-              value={form[name] || ""}
-              onChange={handleChange}
-              placeholder={placeholder}
-              className="w-full rounded-lg border px-4 py-3"
-            />
-          ))}
+          Back to products
+        </Link>
 
-          <textarea
-            name="description"
-            value={form.description || ""}
-            onChange={handleChange}
-            className="min-h-32 w-full rounded-lg border px-4 py-3"
+        <div className="mb-6 mt-4">
+          <p className="text-sm font-medium text-purple-600">
+            {admin ? "Admin catalog" : "Seller center"}
+          </p>
+          <h1 className="mt-1 text-3xl font-bold">
+            Edit product
+          </h1>
+          <p className="mt-2 text-slate-500">
+            Update price, stock, description and images.
+          </p>
+        </div>
+
+        {pageError ? (
+          <p className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
+            {pageError}
+          </p>
+        ) : null}
+
+        {!product && !pageError ? (
+          <p className="text-slate-500">Loading product...</p>
+        ) : null}
+
+        {product ? (
+          <ProductForm
+            key={product._id}
+            product={product}
+            onSubmit={handleSubmit}
+            loading={loading}
           />
-
-          <button className="w-full rounded-lg bg-purple-600 px-5 py-3 text-white">
-            Update Product
-          </button>
-        </form>
+        ) : null}
       </section>
     </main>
   );

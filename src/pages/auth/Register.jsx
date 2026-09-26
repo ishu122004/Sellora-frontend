@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 import api from "../../services/api";
+import { getAuthErrorMessage } from "../../firebase/authErrors";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -44,8 +45,7 @@ function Register() {
 
       navigate("/");
     } catch (error) {
-      console.log(error);
-      setError(error.response?.data?.message || error.message);
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -69,8 +69,7 @@ function Register() {
 
       navigate("/");
     } catch (error) {
-      console.log(error);
-      setError(error.response?.data?.message || error.message);
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -104,8 +103,7 @@ function Register() {
       setConfirmation(result);
       alert("OTP sent");
     } catch (error) {
-      console.log(error);
-      setError(error.message);
+      setError(getAuthErrorMessage(error));
     }
   };
 
@@ -131,8 +129,7 @@ function Register() {
 
       navigate("/");
     } catch (error) {
-      console.log(error);
-      setError(error.response?.data?.message || error.message);
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -146,7 +143,7 @@ function Register() {
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Join MarketHub
+          Join Sellora
         </p>
 
         {error && (

@@ -67,14 +67,14 @@ export default function Footer() {
           <h2 className="font-semibold">Contact</h2>
 
           <address className="mt-4 space-y-3 text-sm not-italic text-gray-400">
-            <p>support@markethub.com</p>
+            <p>support@Sellora.com</p>
             <p>+91 98765 43210</p>
           </address>
         </section>
       </div>
 
       <div className="border-t border-gray-800 px-4 py-5 text-center text-sm text-gray-500">
-        © 2026 MarketHub. All rights reserved.
+        © 2026 Sellora. All rights reserved.
       </div>
     </footer>
   );

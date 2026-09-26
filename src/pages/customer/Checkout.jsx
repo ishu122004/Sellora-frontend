@@ -1,62 +1,80 @@
 //customer confirms
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { auth } from "../../firebase/firebaseConfig";
 
 function Checkout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [cart, setCart] = useState([]);
+  const cartItems = useSelector(
+    (state) => state.cart.items
+  );
+
+  const buyNowItems = location.state?.buyNowItems || null;
+
+  const items = buyNowItems || cartItems;
+
+  const isBuyNow = Boolean(buyNowItems);
+
   const [address, setAddress] = useState("");
-  const [payment, setPayment] = useState("COD");
 
-  useEffect(() => {
-    setCart(JSON.parse(localStorage.getItem("cart") || "[]"));
-  }, []);
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const total = items.reduce(
+    (sum, item) =>
+      sum + item.price * item.quantity,
     0
   );
 
-  const handleCheckout = () => {
-    if (!cart.length) {
-      alert("Your cart is empty");
+  const handleContinue = () => {
+    if (!auth.currentUser) {
+      alert("Please login first");
+      navigate("/login");
+      return;
+    }
+
+    if (!items.length) {
+      alert("No products selected");
+      navigate("/products");
       return;
     }
 
     if (!address.trim()) {
-      alert("Please enter your address");
+      alert("Please enter your delivery address");
       return;
     }
 
-    const order = {
-      id: Date.now(),
-      items: cart,
-      totalAmount: total,
-      address,
-      payment,
-      status: "Pending",
-      createdAt: new Date().toISOString()
-    };
-
-    const orders = JSON.parse(
-      localStorage.getItem("orders") || "[]"
-    );
-
-    localStorage.setItem(
-      "orders",
-      JSON.stringify([...orders, order])
-    );
-
-    localStorage.removeItem("cart");
-
-    navigate("/order-success");
+    navigate("/payment", {
+      state: {
+        items,
+        address,
+        isBuyNow
+      }
+    });
   };
+
+  if (!items.length) {
+    return (
+      <main className="min-h-screen bg-gray-50 px-6 py-12">
+        <div className="mx-auto max-w-4xl">
+          <h1 className="text-3xl font-bold">
+            Checkout
+          </h1>
+
+          <p className="mt-6 text-gray-500">
+            No products selected.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
-      <section className="mx-auto max-w-4xl">
-        <h1 className="text-3xl font-bold">Checkout</h1>
+      <section className="mx-auto max-w-5xl">
+        <h1 className="text-3xl font-bold">
+          Checkout
+        </h1>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <section className="rounded-xl bg-white p-6">
@@ -66,23 +84,12 @@ function Checkout() {
 
             <textarea
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e) =>
+                setAddress(e.target.value)
+              }
               placeholder="Enter delivery address"
-              className="mt-5 min-h-32 w-full rounded-lg border px-4 py-3"
+              className="mt-5 min-h-32 w-full rounded-lg border px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
             />
-
-            <h2 className="mt-6 text-xl font-semibold">
-              Payment Method
-            </h2>
-
-            <select
-              value={payment}
-              onChange={(e) => setPayment(e.target.value)}
-              className="mt-4 w-full rounded-lg border px-4 py-3"
-            >
-              <option value="COD">Cash on Delivery</option>
-              <option value="Online">Online Payment</option>
-            </select>
           </section>
 
           <section className="h-fit rounded-xl bg-white p-6">
@@ -91,7 +98,7 @@ function Checkout() {
             </h2>
 
             <div className="mt-5 space-y-3">
-              {cart.map((item) => (
+              {items.map((item) => (
                 <div
                   key={item._id}
                   className="flex justify-between text-sm"
@@ -99,6 +106,7 @@ function Checkout() {
                   <span>
                     {item.name} × {item.quantity}
                   </span>
+
                   <span>
                     ₹{item.price * item.quantity}
                   </span>
@@ -112,10 +120,10 @@ function Checkout() {
             </div>
 
             <button
-              onClick={handleCheckout}
-              className="mt-6 w-full rounded-lg bg-purple-600 px-5 py-3 font-medium text-white"
+              onClick={handleContinue}
+              className="mt-6 w-full rounded-lg bg-purple-600 px-5 py-3 font-medium text-white hover:bg-purple-700"
             >
-              Place Order
+              Continue to Payment
             </button>
           </section>
         </div>

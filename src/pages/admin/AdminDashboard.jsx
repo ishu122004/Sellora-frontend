@@ -1,78 +1,175 @@
 //overall market place statistics
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAdminStats, fetchAdminUsers, fetchAdminSellers, fetchAdminOrders } from "../../redux/slices/adminSlice";
+
 function AdminDashboard() {
-  const stats = [
-    { title: "Total Users", value: "1,248" },
-    { title: "Total Sellers", value: "86" },
-    { title: "Total Orders", value: "3,420" },
-    { title: "Revenue", value: "₹8,45,000" }
+  const dispatch = useDispatch();
+
+  const { stats, loading, error } = useSelector(
+    (state) => state.admin
+  );
+
+  useEffect(() => {
+    dispatch(fetchAdminStats());
+    dispatch(fetchAdminUsers());
+    dispatch(fetchAdminSellers());
+    dispatch(fetchAdminOrders());
+  }, [dispatch]);
+
+  const cards = [
+    {
+      title: "Customers",
+      value: stats.totalCustomers,
+      text: "Registered customers"
+    },
+    {
+      title: "Sellers",
+      value: stats.totalSellers,
+      text: "Active sellers"
+    },
+    {
+      title: "Products",
+      value: stats.totalProducts,
+      text: "Marketplace products"
+    },
+    {
+      title: "Orders",
+      value: stats.totalOrders,
+      text: "Total orders"
+    },
+    {
+      title: "Wishlists",
+      value: stats.totalWishlists,
+      text: "Customer wishlists"
+    },
+    {
+      title: "Revenue",
+      value: `₹${stats.totalRevenue.toLocaleString("en-IN")}`,
+      text: "Marketplace revenue"
+    }
   ];
 
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-50 p-6">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-slate-500">Loading dashboard...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-gray-50 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div>
-          <p className="text-purple-600 font-medium">Admin Panel</p>
-          <h1 className="text-3xl font-bold text-black mt-1">Dashboard</h1>
-          <p className="text-gray-500 mt-2">
-            Manage your marketplace from one place.
+    <main className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
+      <section className="mx-auto max-w-7xl">
+        <div className="rounded-3xl bg-black p-7 text-white md:p-10">
+          <p className="text-sm font-medium text-purple-300">
+            Sellora Admin
+          </p>
+
+          <h1 className="mt-2 text-3xl font-bold md:text-4xl">
+            Marketplace Dashboard
+          </h1>
+
+          <p className="mt-3 max-w-2xl text-sm text-slate-300 md:text-base">
+            Monitor customers, sellers, products, orders and marketplace
+            activity from one place.
           </p>
         </div>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
-          {stats.map((item) => (
+        {error && (
+          <p className="mt-5 rounded-xl bg-red-50 p-4 text-red-600">
+            {error}
+          </p>
+        )}
+
+        <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card) => (
             <article
-              key={item.title}
-              className="bg-white border border-gray-200 rounded-xl p-6"
+              key={card.title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
             >
-              <p className="text-sm text-gray-500">{item.title}</p>
-              <h2 className="text-2xl font-bold text-black mt-2">
-                {item.value}
+              <p className="text-sm text-slate-500">
+                {card.title}
+              </p>
+
+              <h2 className="mt-3 text-3xl font-bold text-slate-950">
+                {card.value}
               </h2>
+
+              <p className="mt-2 text-sm text-slate-400">
+                {card.text}
+              </p>
             </article>
           ))}
-        </section>
+        </div>
 
-        <section className="bg-white border border-gray-200 rounded-xl p-6 mt-8">
-          <h2 className="text-xl font-bold text-black">Recent Orders</h2>
+        <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold">
+                Recent Orders
+              </h2>
 
-          <div className="overflow-x-auto mt-5">
-            <table className="w-full text-left">
+              <p className="mt-1 text-sm text-slate-500">
+                Latest marketplace orders
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-175 text-left">
               <thead>
-                <tr className="border-b text-sm text-gray-500">
-                  <th className="py-3">Order</th>
-                  <th className="py-3">Customer</th>
-                  <th className="py-3">Amount</th>
-                  <th className="py-3">Status</th>
+                <tr className="border-b text-sm text-slate-500">
+                  <th className="pb-4">Order</th>
+                  <th className="pb-4">Customer</th>
+                  <th className="pb-4">Amount</th>
+                  <th className="pb-4">Status</th>
                 </tr>
               </thead>
 
               <tbody>
-                <tr className="border-b">
-                  <td className="py-4">#ORD1001</td>
-                  <td className="py-4">Iswarya</td>
-                  <td className="py-4">₹2,499</td>
-                  <td className="py-4">
-                    <span className="text-purple-600 font-medium">
-                      Pending
-                    </span>
-                  </td>
-                </tr>
+                {stats.recentOrders?.map((order) => (
+                  <tr
+                    key={order._id}
+                    className="border-b last:border-0"
+                  >
+                    <td className="py-4 font-medium">
+                      #{order._id.slice(-6).toUpperCase()}
+                    </td>
 
-                <tr>
-                  <td className="py-4">#ORD1002</td>
-                  <td className="py-4">Priya</td>
-                  <td className="py-4">₹1,999</td>
-                  <td className="py-4">
-                    <span className="text-green-600 font-medium">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
+                    <td className="py-4 text-slate-600">
+                      {order.customerId}
+                    </td>
+
+                    <td className="py-4 font-semibold">
+                      ₹{order.totalAmount}
+                    </td>
+
+                    <td className="py-4">
+                      <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+
+                {!stats.recentOrders?.length && (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="py-10 text-center text-slate-500"
+                    >
+                      No orders found.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </section>
-      </div>
+      </section>
     </main>
   );
 }

@@ -1,15 +1,23 @@
 //from to add a new delivery address
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import api from "../../services/api";
+import { auth } from "../../firebase/firebaseConfig";
 
 function AddAddress() {
+  const navigate = useNavigate();
+
   const [address, setAddress] = useState({
     name: "",
     phone: "",
-    address: "",
+    addressLine: "",
     city: "",
     state: "",
     pincode: ""
   });
+
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (e) => {
     setAddress({
@@ -18,36 +26,47 @@ function AddAddress() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const addresses = JSON.parse(
-      localStorage.getItem("addresses") || "[]"
-    );
+    if (!auth.currentUser) {
+      alert("Please login first");
+      navigate("/login");
+      return;
+    }
 
-    localStorage.setItem(
-      "addresses",
-      JSON.stringify([...addresses, { ...address, id: Date.now() }])
-    );
+    try {
+      setSaving(true);
 
-    alert("Address added successfully");
+      await api.post(
+        "/addresses",
+        address
+      );
 
-    setAddress({
-      name: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: ""
-    });
+      alert("Address added successfully");
+
+      navigate("/addresses");
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+        "Failed to add address"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <section className="mx-auto max-w-2xl rounded-2xl bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">Add Address</h1>
+        <h1 className="text-2xl font-bold">
+          Add Address
+        </h1>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 space-y-4"
+        >
           <input
             name="name"
             value={address.name}
@@ -67,8 +86,8 @@ function AddAddress() {
           />
 
           <textarea
-            name="address"
-            value={address.address}
+            name="addressLine"
+            value={address.addressLine}
             onChange={handleChange}
             placeholder="Address"
             required
@@ -104,8 +123,13 @@ function AddAddress() {
             className="w-full rounded-lg border px-4 py-3"
           />
 
-          <button className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-purple-600">
-            Save Address
+          <button
+            disabled={saving}
+            className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white hover:bg-purple-600 disabled:opacity-50"
+          >
+            {saving
+              ? "Saving..."
+              : "Save Address"}
           </button>
         </form>
       </section>

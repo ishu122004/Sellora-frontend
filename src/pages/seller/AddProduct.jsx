@@ -1,134 +1,93 @@
-//seller creates a new product
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import ProductForm from "../../components/seller/ProductForm";
 import api from "../../services/api";
 
-function AddProduct() {
-  const [form, setForm] = useState({
-    name: "",
-    category: "",
-    price: "",
-    stock: "",
-    description: "",
-    image: "",
-    seller: ""
-  });
+function AddProduct({ admin = false }) {
+  const navigate = useNavigate();
+  const [sellers, setSellers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pageError, setPageError] = useState("");
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
+  useEffect(() => {
+    if (!admin) {
+      return;
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    api.get("/admin/sellers")
+      .then((response) => setSellers(response.data))
+      .catch((error) => {
+        setPageError(
+          error.response?.data?.message ||
+          "Failed to load sellers"
+        );
+      });
+  }, [admin]);
 
+  const handleSubmit = async (product) => {
     try {
-      await api.post("/products", {
-        ...form,
-        price: Number(form.price),
-        stock: Number(form.stock)
-      });
-
-      alert("Product added successfully");
-
-      setForm({
-        name: "",
-        category: "",
-        price: "",
-        stock: "",
-        description: "",
-        image: "",
-        seller: ""
-      });
+      setLoading(true);
+      setPageError("");
+      await api.post("/products", product);
+      navigate(
+        admin
+          ? "/admin/products"
+          : "/seller/products"
+      );
     } catch (error) {
-      alert(
+      setPageError(
         error.response?.data?.message ||
         "Failed to add product"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
+  const returnPath = admin
+    ? "/admin/products"
+    : "/seller/products";
+
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
-      <section className="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">Add Product</h1>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 space-y-4"
+    <main className="min-h-screen bg-slate-50 px-4 py-10">
+      <section className="mx-auto max-w-3xl">
+        <Link
+          to={returnPath}
+          className="text-sm font-medium text-purple-600"
         >
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Product name"
-            required
-            className="w-full rounded-lg border px-4 py-3"
-          />
+          Back to products
+        </Link>
 
-          <input
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            placeholder="Category"
-            required
-            className="w-full rounded-lg border px-4 py-3"
-          />
+        <div className="mb-6 mt-4">
+          <p className="text-sm font-medium text-purple-600">
+            {admin ? "Admin catalog" : "Seller center"}
+          </p>
+          <h1 className="mt-1 text-3xl font-bold">
+            Add product
+          </h1>
+          <p className="mt-2 text-slate-500">
+            Add pricing, inventory, description and product images.
+          </p>
+        </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <input
-              name="price"
-              type="number"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="Price"
-              required
-              className="rounded-lg border px-4 py-3"
-            />
+        {pageError ? (
+          <p className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
+            {pageError}
+          </p>
+        ) : null}
 
-            <input
-              name="stock"
-              type="number"
-              value={form.stock}
-              onChange={handleChange}
-              placeholder="Stock"
-              required
-              className="rounded-lg border px-4 py-3"
-            />
+        {admin && !pageError && !sellers.length ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 text-amber-800">
+            Create or onboard a seller before assigning a product.
           </div>
-
-          <input
-            name="image"
-            value={form.image}
-            onChange={handleChange}
-            placeholder="Image URL"
-            required
-            className="w-full rounded-lg border px-4 py-3"
+        ) : (
+          <ProductForm
+            onSubmit={handleSubmit}
+            loading={loading}
+            sellers={sellers}
+            requireSeller={admin}
           />
-
-          <input
-            name="seller"
-            value={form.seller}
-            onChange={handleChange}
-            placeholder="Seller Firebase UID"
-            required
-            className="w-full rounded-lg border px-4 py-3"
-          />
-
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Product description"
-            required
-            className="min-h-32 w-full rounded-lg border px-4 py-3"
-          />
-
-          <button className="w-full rounded-lg bg-black px-5 py-3 text-white hover:bg-purple-600">
-            Add Product
-          </button>
-        </form>
+        )}
       </section>
     </main>
   );

@@ -13,7 +13,7 @@ export const fetchSeller = createAsyncThunk(
 export const fetchSellerStats = createAsyncThunk(
   "seller/fetchSellerStats",
   async function (uid) {
-    const res = await api.get(`/orders/seller/${uid}/stats`);
+    const res = await api.get(`/sellers/${uid}/dashboard`);
     return res.data;
   }
 );
