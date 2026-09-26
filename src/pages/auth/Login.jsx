@@ -139,6 +139,17 @@ function Login() {
           Forgot password?
         </a>
 
+        <p className="mt-4 text-sm text-gray-500">
+  Don't have an account?{" "}
+  <button
+    type="button"
+    onClick={() => navigate("/register")}
+    className="font-medium text-purple-600 hover:underline"
+  >
+    Create account
+  </button>
+</p>
+
         <div className="my-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-gray-200"></span>
           <span className="text-sm text-gray-400">OR</span>
