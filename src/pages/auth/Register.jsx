@@ -3,9 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithPopup,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
+  signInWithPopup
 } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 import api from "../../services/api";
@@ -14,9 +12,9 @@ import { getAuthErrorMessage } from "../../firebase/authErrors";
 function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [confirmation, setConfirmation] = useState(null);
+  // const [phone, setPhone] = useState("");
+  // const [otp, setOtp] = useState("");
+  // const [confirmation, setConfirmation] = useState(null);
   const [role, setRole] = useState("customer");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -75,65 +73,65 @@ function Register() {
     }
   };
 
-  const sendOtp = async () => {
-    try {
-      setError("");
+  // const sendOtp = async () => {
+  //   try {
+  //     setError("");
 
-      if (!phone) {
-        setError("Enter your phone number");
-        return;
-      }
+  //     if (!phone) {
+  //       setError("Enter your phone number");
+  //       return;
+  //     }
 
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          "recaptcha-container",
-          {
-            size: "normal"
-          }
-        );
-      }
+  //     if (!window.recaptchaVerifier) {
+  //       window.recaptchaVerifier = new RecaptchaVerifier(
+  //         auth,
+  //         "recaptcha-container",
+  //         {
+  //           size: "normal"
+  //         }
+  //       );
+  //     }
 
-      const result = await signInWithPhoneNumber(
-        auth,
-        phone,
-        window.recaptchaVerifier
-      );
+  //     const result = await signInWithPhoneNumber(
+  //       auth,
+  //       phone,
+  //       window.recaptchaVerifier
+  //     );
 
-      setConfirmation(result);
-      alert("OTP sent");
-    } catch (error) {
-      setError(getAuthErrorMessage(error));
-    }
-  };
+  //     setConfirmation(result);
+  //     alert("OTP sent");
+  //   } catch (error) {
+  //     setError(getAuthErrorMessage(error));
+  //   }
+  // };
 
-  const verifyOtp = async () => {
-    try {
-      setError("");
-      setLoading(true);
+  // const verifyOtp = async () => {
+  //   try {
+  //     setError("");
+  //     setLoading(true);
 
-      if (!confirmation) {
-        setError("Please request OTP first");
-        return;
-      }
+  //     if (!confirmation) {
+  //       setError("Please request OTP first");
+  //       return;
+  //     }
 
-      const result = await confirmation.confirm(otp);
+  //     const result = await confirmation.confirm(otp);
 
-      const user = result.user;
+  //     const user = result.user;
 
-      await api.post("/users", {
-        firebaseUid: user.uid,
-        phone: user.phoneNumber,
-        role
-      });
+  //     await api.post("/users", {
+  //       firebaseUid: user.uid,
+  //       phone: user.phoneNumber,
+  //       role
+  //     });
 
-      navigate("/");
-    } catch (error) {
-      setError(getAuthErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     navigate("/");
+  //   } catch (error) {
+  //     setError(getAuthErrorMessage(error));
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-4 py-10">
@@ -259,7 +257,7 @@ function Register() {
           Continue with Google
         </button>
 
-        <div className="my-6 border-t border-gray-200 pt-6">
+        {/* <div className="my-6 border-t border-gray-200 pt-6">
           <h2 className="font-semibold text-gray-900">
             Register with phone
           </h2>
@@ -305,7 +303,7 @@ function Register() {
               </>
             )}
           </div>
-        </div>
+        </div> */}
 
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
